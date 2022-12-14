@@ -280,6 +280,7 @@ def extract_skillsJ(resume_text):
     skills_data = json.load(skills_file)
     skills = skills_data["skills"]
     skills_lower = [name.lower() for name in skills]
+    skills_file.close()
     # removing stop words and implementing word tokenization
     tokens = [token.text for token in nlp_text if not token.is_stop]
     skillset = []
