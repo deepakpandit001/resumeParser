@@ -4,6 +4,7 @@ import locationtagger
 from nltk.corpus import stopwords
 import re
 import spacy
+import json
 import PyPDF2
 from pathlib import Path
 import requests
@@ -224,9 +225,9 @@ def pdftToText(str):
 
 def textToJson(value):
     dict = {'Resume': 'Detail'}
-    name = extract_name(value)
+    name = extract_namesJ(value)
     email = get_email_addresses(value)
-    skill = extract_skills(value)
+    skill = extract_skillsJ(value)
     phone = get_phone_numbers(value)
     education = extract_education(value)
     dict['Name'] = name
@@ -243,3 +244,55 @@ def getPdfFromUrl(str):
     filename = Path('resumeParse.pdf')
     response = requests.get(str)
     filename.write_bytes(response.content)
+
+#############################################
+
+
+def extract_namesJ(resume_text):
+    nlp_text = nlp(resume_text)
+    name_file = open('names.json')
+    name_data = json.load(name_file)
+    user_name = name_data["names"]
+    names_lower = [name.lower() for name in user_name]
+    name_file.close()
+
+    # removing stop words and implementing word tokenization
+    tokens = [token.text for token in nlp_text if not token.is_stop]
+    skillset = []
+
+    # check for one-grams (example: python)
+    for token in tokens:
+        if token.lower() in names_lower:
+            skillset.append(token)
+
+    # check for bi-grams and tri-grams (example: machine learning)
+    for token in nlp_text.noun_chunks:
+        token = token.text.lower().strip()
+        if token in names_lower:
+            skillset.append(token)
+
+    return [i.capitalize() for i in set([i.lower() for i in skillset])]
+
+
+def extract_skillsJ(resume_text):
+    nlp_text = nlp(resume_text)
+    skills_file = open('skills.json')
+    skills_data = json.load(skills_file)
+    skills = skills_data["skills"]
+    skills_lower = [name.lower() for name in skills]
+    # removing stop words and implementing word tokenization
+    tokens = [token.text for token in nlp_text if not token.is_stop]
+    skillset = []
+
+    # check for one-grams (example: python)
+    for token in tokens:
+        if token.lower() in skills_lower:
+            skillset.append(token)
+
+    # check for bi-grams and tri-grams (example: machine learning)
+    for token in nlp_text.noun_chunks:
+        token = token.text.lower().strip()
+        if token in skills_lower:
+            skillset.append(token)
+
+    return [i.capitalize() for i in set([i.lower() for i in skillset])]
