@@ -229,12 +229,14 @@ def textToJson(value):
     email = get_email_addresses(value)
     skill = extract_skillsJ(value)
     phone = get_phone_numbers(value)
-    education = extract_education(value)
+    designation = extract_designationJ(value)
+    education = extract_educationJ(value)
     dict['Name'] = name
     dict['Email'] = email
     dict['Phone'] = phone
-    dict['Education'] = email
+    dict['Education'] = education
     dict['Skill'] = skill
+    dict['Designation'] = designation
     josnAddress = get_Address(value)
     dict['Address'] = josnAddress
     return dict
@@ -279,6 +281,56 @@ def extract_skillsJ(resume_text):
     skills_file = open('skills.json')
     skills_data = json.load(skills_file)
     skills = skills_data["skills"]
+    skills_lower = [name.lower() for name in skills]
+    skills_file.close()
+    # removing stop words and implementing word tokenization
+    tokens = [token.text for token in nlp_text if not token.is_stop]
+    skillset = []
+
+    # check for one-grams (example: python)
+    for token in tokens:
+        if token.lower() in skills_lower:
+            skillset.append(token)
+
+    # check for bi-grams and tri-grams (example: machine learning)
+    for token in nlp_text.noun_chunks:
+        token = token.text.lower().strip()
+        if token in skills_lower:
+            skillset.append(token)
+
+    return [i.capitalize() for i in set([i.lower() for i in skillset])]
+
+
+def extract_designationJ(resume_text):
+    nlp_text = nlp(resume_text)
+    skills_file = open('designations.json')
+    skills_data = json.load(skills_file)
+    skills = skills_data["designations"]
+    skills_lower = [name.lower() for name in skills]
+    skills_file.close()
+    # removing stop words and implementing word tokenization
+    tokens = [token.text for token in nlp_text if not token.is_stop]
+    skillset = []
+
+    # check for one-grams (example: python)
+    for token in tokens:
+        if token.lower() in skills_lower:
+            skillset.append(token)
+
+    # check for bi-grams and tri-grams (example: machine learning)
+    for token in nlp_text.noun_chunks:
+        token = token.text.lower().strip()
+        if token in skills_lower:
+            skillset.append(token)
+
+    return [i.capitalize() for i in set([i.lower() for i in skillset])]
+
+
+def extract_educationJ(resume_text):
+    nlp_text = nlp(resume_text)
+    skills_file = open('education.json')
+    skills_data = json.load(skills_file)
+    skills = skills_data["edu"]
     skills_lower = [name.lower() for name in skills]
     skills_file.close()
     # removing stop words and implementing word tokenization
