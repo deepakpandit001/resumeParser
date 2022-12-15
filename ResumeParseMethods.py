@@ -134,7 +134,7 @@ sample_text = "India has very rich and vivid culture\
 
 
 def get_Address(str):
-    dictAdd = {'Resume': 'Address'}
+    dictAdd = {'countries': 'n/a'}
     place_entity = locationtagger.find_locations(text=str)
     # getting all countries
     dictAdd['countries'] = place_entity.countries
@@ -224,7 +224,7 @@ def pdftToText(str):
 
 
 def textToJson(value):
-    dict = {'Resume': 'Detail'}
+    dict = {'Name': 'n/a'}
     name = extract_namesJ(value)
     email = get_email_addresses(value)
     skill = extract_skillsJ(value)
